@@ -1,0 +1,4 @@
+services:
+  editor_assets.asset_processor:
+    class: Drupal\editor_assets\EditorAssetProcessor
+    arguments: ['@asset.resolver']

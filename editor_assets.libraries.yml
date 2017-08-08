@@ -1,0 +1,6 @@
+core:
+  version: 1.x
+  js:
+    js/editor_assets.js: {}
+  dependencies:
+    - core/drupal

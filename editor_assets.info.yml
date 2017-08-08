@@ -1,0 +1,7 @@
+name: Editor Asset Loader
+type: module
+description: 'Provides a system for loading Drupal attachments into an editor.'
+package: Componentize
+core: '8.x'
+dependencies:
+  - editor
