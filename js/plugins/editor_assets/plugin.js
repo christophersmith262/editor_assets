@@ -17,7 +17,7 @@
     hidpi: false,
 
     beforeInit: function(editor) {
-      editor.drupalAssets = Drupal.editor_assets.createManager(editor.id, drupalSettings.editor_assets);
+      editor.drupalAssets = Drupal.editor_assets.createManager(editor.name, drupalSettings.editor_assets);
     },
 
     init: function(editor) {
