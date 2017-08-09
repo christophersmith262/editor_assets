@@ -5,12 +5,12 @@
 
   Drupal.editor_assets.activeManagers = {};
 
-  Drupal.editor_assets.createManager = function(id, initialAssets, document) {
+  Drupal.editor_assets.createManager = function(id, initialAssets, window) {
     if (!initialAssets) {
       initialAssets = [];
     }
     return this.activeManagers[id] = new Drupal.editor_assets.AssetManager(initialAssets, {
-      'document': document,
+      'window': window,
     });
   };
 
@@ -74,8 +74,8 @@
   };
 
 
-  Drupal.editor_assets.AssetLoadingQueue = function(document) {
-    this.document = document;
+  Drupal.editor_assets.AssetLoadingQueue = function(window) {
+    this.window = window;
     this._queue = [];
     this._isProcessing = false;
     this._isBlocking = false;
@@ -126,11 +126,11 @@
       this._isBlocking = false;
 
       if (model.get('type') == 'settings') {
-        if (this.document.window.drupalSettings) {
+        if (this.window.drupalSettings) {
           $.extend(true, drupalSettings, model.get('data'));
         }
         else {
-          this.document.window.drupalSettings = model.get('data');
+          this.window.drupalSettings = model.get('data');
         }
         return this._process(model);
       }
@@ -143,10 +143,10 @@
 
         var targetEl;
         if (model.get('location') == 'footer') {
-          targetEl = this.document.body;
+          targetEl = this.window.document.body;
         }
         else {
-          targetEl = this.document.head;
+          targetEl = this.window.document.head;
         }
 
         targetEl.appendChild(el);
@@ -174,14 +174,17 @@
   Drupal.editor_assets.AssetManager = Backbone.Collection.extend({
 
     initialize: function(models, options) {
-      if (options.document) {
-        this.start(options.document);
+      if (options && options.window) {
+        this.start(options.window, options.loader);
       }
     },
 
-    start: function(document) {
-      this._loader = new Drupal.editor_assets.AssetLoadingQueue(document);
-      this.document = document;
+    start: function(window, loader) {
+      if (!loader) {
+        loader = new Drupal.editor_assets.AssetLoadingQueue(window);
+      }
+      this._loader = loader;
+      this.window = window;
       this.forEach(function(model) {
         this._loader.load(model);
       }, this);
@@ -191,21 +194,53 @@
 
     stop: function() {
       this.off();
-      delete this._loader;
-      this.document = undefined;
+      this._loader = undefined;
+      this.window = undefined;
     },
 
     attachBehaviors: function(context, settings) {
-      if (this.document) {
-        this.document.window.Drupal.attachBehaviors(context, settings);
-      }
+      this._do('attachBehaviors', context, settings);
     },
 
     detachBehaviors: function(context, settings, trigger) {
-      if (this.document) {
-        this.document.window.Drupal.detachBehaviors(context, settings, trigger);
+      this._do('detachBehaviors', context, settings, trigger);
+    },
+
+    _do: function(callback, context, drupalSettings, trigger) {
+      var doIfReady = _.bind(this._doIfReady, this, callback, context, drupalSettings, trigger);
+      if (!doIfReady()) {
+        this.on('change:loaded', doIfReady, this);
       }
     },
+
+    _doIfReady: function(callback, context, drupalSettings, trigger) {
+      if (this._isReady()) {
+        if (this.window && this.window.Drupal) {
+          var args = [];
+
+          args.push(context ? context : this.window.document);
+          args.push(drupalSettings ? drupalSettings : this.window.drupalSettings);
+
+          if (trigger) {
+            args.push(trigger);
+          }
+
+          this.window.Drupal[callback].apply(this.window.Drupal, args);
+        }
+
+        this.off('change:loaded', null, this);
+        return true;
+      }
+      else {
+        return false;
+      }
+    },
+
+    _isReady: function() {
+      return !this.filter(function(model) {
+        return !model.get('loaded');
+      }).length;
+    }
 
   });
 

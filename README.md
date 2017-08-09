@@ -2,7 +2,7 @@
 
 This module provides a system for injecting Drupal asset libraries into the
 frame of an editor. A generic API is provided to allow use with any editor
-that exposes a 'document' object.
+that exposes a 'window' object.
 
 By default a CKEditor plugin is provided for the default Drupal CKEditor
 implementation.
@@ -33,7 +33,7 @@ explaination of how this property can be used.
 
 ### For Other Editors
 
-This module provides API functions for managing assets on a DOM document.
+This module provides API functions for managing assets on a DOM window.
 
 To create a new asset manager for an editor instance, you must first include
 the editor library:
@@ -46,10 +46,10 @@ On the front end, you can attach an asset manager to an editor instance by
 calling:
 
 ```
-Drupal.editor_assets.createManager(<unique_editor_instance_id>, <document>);
+Drupal.editor_assets.createManager(<unique_editor_instance_id>, <window>);
 ```
 
-The `document` is the HTML Document you want to manage assets for.
+The `window` is the HTML Document you want to manage assets for.
 
 ## Adding Assets to the Manager
 

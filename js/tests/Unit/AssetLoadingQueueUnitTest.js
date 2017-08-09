@@ -5,17 +5,17 @@ const expect = require('chai').expect;
 describe('AssetLoadingQueue::construct', () => {
 
   it('should be callable', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
   });
 
 });
 
 describe('AssetLoadingQueue::load', () => {
 
-  it('should load javascript files to the document footer', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+  it('should load javascript files to the window.document footer', function() {
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
 
     loader.load(new Backbone.Model({
       'type': 'js',
@@ -23,15 +23,15 @@ describe('AssetLoadingQueue::load', () => {
       'source': 'file',
       'location': 'footer',
     }));
-    utility.assertTag(document.body.firstChild, 'SCRIPT', {
+    utility.assertTag(window.document.body.firstChild, 'SCRIPT', {
       'type': 'text/javascript',
       'src': '/test.js',
     });
   });
 
-  it('should load css files to the document footer', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+  it('should load css files to the window.document footer', function() {
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
 
     loader.load(new Backbone.Model({
       'type': 'css',
@@ -39,16 +39,16 @@ describe('AssetLoadingQueue::load', () => {
       'source': 'file',
       'location': 'footer',
     }));
-    utility.assertTag(document.body.firstChild, 'LINK', {
+    utility.assertTag(window.document.body.firstChild, 'LINK', {
       'rel': 'stylesheet',
       'type': 'text/css',
       'href': '/test2.css',
     });
   });
 
-  it('should load javascript files to the document header', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+  it('should load javascript files to the window.document header', function() {
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
 
     loader.load(new Backbone.Model({
       'type': 'js',
@@ -56,16 +56,16 @@ describe('AssetLoadingQueue::load', () => {
       'source': 'file',
       'location': 'header',
     }));
-    utility.assertTag(document.head.firstChild, 'SCRIPT', {
+    utility.assertTag(window.document.head.firstChild, 'SCRIPT', {
       'type': 'text/javascript',
       'src': '/test3.js',
     });
 
   });
 
-  it('should load css files to the document header', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+  it('should load css files to the window.document header', function() {
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
 
     loader.load(new Backbone.Model({
       'type': 'css',
@@ -73,7 +73,7 @@ describe('AssetLoadingQueue::load', () => {
       'source': 'file',
       'location': 'header',
     }));
-    utility.assertTag(document.head.firstChild, 'LINK', {
+    utility.assertTag(window.document.head.firstChild, 'LINK', {
       'rel': 'stylesheet',
       'type': 'text/css',
       'href': '/test4.css',
@@ -81,8 +81,8 @@ describe('AssetLoadingQueue::load', () => {
   });
 
   it('should load assets synchronosly', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
 
     loader.load(new Backbone.Model({
       'type': 'js',
@@ -103,31 +103,31 @@ describe('AssetLoadingQueue::load', () => {
       'location': 'header',
     }));
 
-    expect(document.body.childElementCount).to.eql(1);
-    expect(document.head.childElementCount).to.eql(0);
-    utility.assertTag(document.body.firstChild, 'SCRIPT', {
+    expect(window.document.body.childElementCount).to.eql(1);
+    expect(window.document.head.childElementCount).to.eql(0);
+    utility.assertTag(window.document.body.firstChild, 'SCRIPT', {
       'type': 'text/javascript',
       'src': '/test5.js',
     });
 
-    var event=document.createEvent("Event");
+    var event=window.document.createEvent("Event");
     event.initEvent("load", false, false);
-    document.body.firstChild.dispatchEvent(event);
+    window.document.body.firstChild.dispatchEvent(event);
 
-    expect(document.body.childElementCount).to.eql(1);
-    expect(document.head.childElementCount).to.eql(1);
-    utility.assertTag(document.head.firstChild, 'LINK', {
+    expect(window.document.body.childElementCount).to.eql(1);
+    expect(window.document.head.childElementCount).to.eql(1);
+    utility.assertTag(window.document.head.firstChild, 'LINK', {
       'rel': 'stylesheet',
       'type': 'text/css',
       'href': '/test6.css',
     });
 
-    var event=document.createEvent("Event");
+    var event=window.document.createEvent("Event");
     event.initEvent("error", false, false);
-    document.head.firstChild.dispatchEvent(event);
-    expect(document.body.childElementCount).to.eql(1);
-    expect(document.head.childElementCount).to.eql(2);
-    utility.assertTag(document.head.lastChild, 'SCRIPT', {
+    window.document.head.firstChild.dispatchEvent(event);
+    expect(window.document.body.childElementCount).to.eql(1);
+    expect(window.document.head.childElementCount).to.eql(2);
+    utility.assertTag(window.document.head.lastChild, 'SCRIPT', {
       'type': 'text/javascript',
       'src': '/test7.js',
     });
@@ -138,8 +138,8 @@ describe('AssetLoadingQueue::load', () => {
 describe('AssetLoadingQueue::merge', () => {
 
   it('should initialize drupalSettings when it does not already exist', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
 
     var testSettings = {
       'initial': 'value',
@@ -150,12 +150,12 @@ describe('AssetLoadingQueue::merge', () => {
       'data': testSettings,
     }));
 
-    expect(document.window.drupalSettings).to.eql(testSettings);
+    expect(window.drupalSettings).to.eql(testSettings);
   });
 
   it('should merge drupalSettings when it already exists', function() {
-    var document = utility.createDocument();
-    var loader = new Drupal.editor_assets.AssetLoadingQueue(document);
+    var window = utility.createWindow();
+    var loader = new Drupal.editor_assets.AssetLoadingQueue(window);
 
     var testSettings = {
       'initial': 'value',
@@ -167,7 +167,7 @@ describe('AssetLoadingQueue::merge', () => {
     });
 
     loader.merge(settingsModel);
-    expect(document.window.drupalSettings).to.eql(testSettings);
+    expect(window.drupalSettings).to.eql(testSettings);
 
     var otherSettings = {
       'more': 'settings',
@@ -176,7 +176,7 @@ describe('AssetLoadingQueue::merge', () => {
       'data': otherSettings,
     });
     loader.merge(settingsModel);
-    expect(document.window.drupalSettings).to.eql(jQuery.merge(testSettings, otherSettings, true));
+    expect(window.drupalSettings).to.eql(jQuery.merge(testSettings, otherSettings, true));
     expect(settingsModel.get('settings')).to.eql(jQuery.merge(testSettings, otherSettings, true));
   });
 

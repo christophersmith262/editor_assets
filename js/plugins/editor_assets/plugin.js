@@ -23,7 +23,7 @@
     init: function(editor) {
       editor.on('contentDom', function(evt) {
         if (editor.drupalAssets) {
-          editor.drupalAssets.start(editor.document.$);
+          editor.drupalAssets.start(editor.window.$);
         }
       });
       editor.on('contentDomUnload', function(evt) {

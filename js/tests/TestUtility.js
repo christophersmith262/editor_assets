@@ -2,13 +2,20 @@
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 const expect = require('chai').expect;
+const sinon = require('sinon');
 
-function createDocument() {
+function createDrupalSpy() {
+  return {
+    attachBehaviors: sinon.spy(),
+    detachBehaviors: sinon.spy(),
+  };
+}
+
+function createWindow() {
   var dom = new JSDOM('<!DOCTYPE html><head></head><body></body>');
-  var document = dom.window.document;
-  document.window = dom.window;
-  document.window.jQuery = require('jquery')(document.window);
-  return document;
+  dom.window.jQuery = require('jquery')(dom.window);
+  dom.window.Drupal = createDrupalSpy();
+  return dom.window;
 }
 
 function assertTag(domElement, tagName, attributes) {
@@ -22,11 +29,12 @@ function assertTag(domElement, tagName, attributes) {
   expect(domElement.attributes.length).to.eql(i);
 }
 
-global.document = createDocument();
+global.window = createWindow();
+global.document = global.window.document;
 global.Drupal = {};
 global.Drupal.AjaxCommands = function(){};
 global.drupalSettings = {};
-global.jQuery = global.document.window.jQuery;
+global.jQuery = global.window.jQuery;
 global.Backbone = require('backbone');
 global.Backbone.$ = global.jQuery;
 global._ = require('underscore');
@@ -34,6 +42,6 @@ global._ = require('underscore');
 require('../editor_assets');
 
 module.exports = {
-  createDocument: createDocument,
-  assertTag: assertTag,
+  createWindow: createWindow,
+  assertTag: assertTag
 };
