@@ -1,4 +1,4 @@
 services:
-  editor_assets.asset_processor:
+  editor_assets.processor:
     class: Drupal\editor_assets\EditorAssetProcessor
     arguments: ['@asset.resolver']
