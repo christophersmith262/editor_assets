@@ -143,7 +143,12 @@
 
         var targetEl;
         if (model.get('location') == 'footer') {
-          targetEl = this.window.document.body;
+          var $els = $('.js-editor-assets', this.window.document.body);
+          if (!$els.length) {
+            $(this.window.document.body).append('<div class="js-editor-assets"></div>');
+            $els = $(this.window.document.body).children('.js-editor-assets');
+          }
+          targetEl = $els[0];
         }
         else {
           targetEl = this.window.document.head;
@@ -196,6 +201,9 @@
       this.off();
       this._loader = undefined;
       this.window = undefined;
+      this.each(function(model) {
+        model.set({ loaded: false });
+      });
     },
 
     attachBehaviors: function(context, settings) {

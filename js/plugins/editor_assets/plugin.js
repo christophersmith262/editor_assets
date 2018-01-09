@@ -31,6 +31,14 @@
           editor.drupalAssets.stop();
         }
       });
+      editor.on('toDataFormat', function(evt) {
+        var els = evt.data.dataValue.find(function(el) {
+          return el.attributes.class == 'js-editor-assets';
+        });
+        _.each(els, function(el) {
+          el.remove();
+        });
+      }, null, null, 8);
     },
   });
 
