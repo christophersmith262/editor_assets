@@ -234,14 +234,12 @@
           }
 
           this.window.Drupal[callback].apply(this.window.Drupal, args);
-        }
 
-        this.off('change:loaded', null, this);
-        return true;
+          this.off('change:loaded', null, this);
+          return true;
+        }
       }
-      else {
-        return false;
-      }
+      return false;
     },
 
     _isReady: function() {
